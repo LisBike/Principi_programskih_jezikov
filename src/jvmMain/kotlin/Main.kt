@@ -130,6 +130,13 @@ import java.io.File
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.sql.Connection
+import java.sql.DriverManager
+import java.sql.PreparedStatement
+import kotlin.*
+import kotlin.io.writeText
 data class Station(val name: String, val availableBikes: Int)
 
 fun parseJSONData(jsonData: String): List<Station> {
@@ -167,6 +174,34 @@ fun fetchDataFromAPI(apiUrl: String): String {
     return response.toString()
 }
 
+fun getConfigValues(): JSONObject {
+    val configFilePath = "C:\\Users\\Dell\\IdeaProjects\\LIS_BIKE\\src\\jvmMain\\kotlin\\config.json"
+    val configContent = String(Files.readAllBytes(Paths.get(configFilePath)))
+    return JSONObject(configContent)
+}
+
+fun saveStationsToDatabase(stations: List<Station>) {
+    val config = getConfigValues()
+    val url = config.getString("url")
+    val username = config.getString("username")
+    val password = config.getString("password")
+    Class.forName("com.mysql.cj.jdbc.Driver")
+    val connection: Connection = DriverManager.getConnection(url, username, password)
+
+    val insertStatement = "INSERT INTO stations (name, available_bikes) VALUES (?, ?)"
+    val preparedStatement: PreparedStatement = connection.prepareStatement(insertStatement)
+
+    for (station in stations) {
+        preparedStatement.setString(1, station.name)
+        preparedStatement.setInt(2, station.availableBikes)
+        preparedStatement.addBatch()
+    }
+
+    preparedStatement.executeBatch()
+
+    connection.close()
+}
+
 fun generateHTMLPage(stations: List<Station>): String {
     val html = StringBuilder()
 
@@ -192,6 +227,7 @@ fun main() {
 
     // Step 3: Generate HTML page
     val htmlPage = generateHTMLPage(stations)
+    saveStationsToDatabase(stations)
 
     // Write HTML to a file (optional)
     val outputFile = "output.html"

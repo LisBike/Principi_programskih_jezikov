@@ -28,6 +28,7 @@ kotlin {
                 implementation ("org.jsoup:jsoup:1.14.3")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
                 implementation ("org.json:json:20210307")
+                implementation ("mysql:mysql-connector-java:8.0.27")
             }
         }
         val jvmTest by getting
