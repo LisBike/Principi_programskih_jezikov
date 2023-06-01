@@ -328,7 +328,7 @@ private fun AboutText() {
             modifier = Modifier.padding(20.dp)
         )
         Text(text = "Subject: Principles of programming languages - Project", style = MaterialTheme.typography.h6)
-        Text(text = "Author: Mladi Majmuni", style = MaterialTheme.typography.body1)
+        Text(text = "Author: Lis'bike", style = MaterialTheme.typography.body1)
     }
 }
 

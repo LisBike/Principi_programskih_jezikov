@@ -1,127 +1,3 @@
-/*import org.jsoup.Jsoup
-
-data class Station(val name: String, val temperature: String)
-
-data class ExtractedData(var stations: List<Station> = listOf())
-
-fun main() {
-    val extractedData = ExtractedData()
-
-    val doc = Jsoup.connect("https://meteo.arso.gov.si/uploads/probase/www/observ/surface/text/sl/observationAms_si_latest.html").get()
-
-    val stationRows = doc.select("tr")
-
-    extractedData.stations = stationRows.mapNotNull { row ->
-        val nameElement = row.select("td.meteoSI-th")
-        val temperatureElement = row.select("td.t")
-
-        if (nameElement.isNotEmpty() && temperatureElement.isNotEmpty()) {
-            val name = nameElement.text().trim()
-            val temperature = temperatureElement.text().trim()
-
-            Station(name, temperature)
-        } else {
-            null
-        }
-    }
-
-    println("----------------------------------------")
-    println("-------Temperature v mestu --------")
-    println("----------------------------------------")
-    println(String.format("%-25s%s", "MESTO", "TEMPERATURA"))
-    println("----------------------------------------")
-    extractedData.stations.forEach {
-        println(String.format("%-25s%s", it.name, it.temperature))
-    }
-    println("----------------------------------------")
-}*/
-/*import org.jsoup.Jsoup
-import org.jsoup.nodes.Element
-import org.jsoup.nodes.Document
-import java.io.File
-
-data class Station(val name: String, val temperature: String,val vlaznost:String)
-
-data class ExtractedData(var stations: List<Station> = listOf())
-
-fun main() {
-    val extractedData = ExtractedData()
-
-    val doc = Jsoup.connect("https://meteo.arso.gov.si/uploads/probase/www/observ/surface/text/sl/observationAms_si_latest.html").get()
-    val doc1=Jsoup.connect("https://api.jcdecaux.com/vls/v3/stations?apiKey=frifk0jbxfefqqniqez09tw4jvk37wyf823b5j1i&contract=maribor").get()
-
-
-    val stationRows = doc.select("tr")
-
-    extractedData.stations = stationRows.mapNotNull { row: Element ->
-        val nameElement = row.select("td.meteoSI-th")
-        val temperatureElement = row.select("td.t")
-        val vlaznostElement=row.select("td.rh")
-
-        if (nameElement.isNotEmpty() && temperatureElement.isNotEmpty()) {
-            val name = nameElement.text().trim()
-            val temperature = temperatureElement.text().trim()
-            val vlaznost=vlaznostElement.text().trim()
-
-            Station(name, temperature,vlaznost)
-        } else {
-            null
-        }
-    }
-
-    val outputFile = File("output.html")
-    outputFile.bufferedWriter().use { writer ->
-        writer.write("""
-            <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <style>
-                        table {
-                            font-family: Arial, sans-serif;
-                            border-collapse: collapse;
-                            width: 100%;
-                        }
-                        
-                        th, td {
-                            text-align: left;
-                            padding: 8px;
-                        }
-                        
-                        th {
-                            background-color: grey;
-                            color: white;
-                        }
-                        
-                        tr:nth-child(even) {
-                            background-color: lightblue;
-                        }
-                    </style>
-                </head>
-                <body>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>MESTO</th>
-                                <th>TEMPERATURA</th>
-                                <th>Vlaznost</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-        """.trimIndent())
-        extractedData.stations.forEach {
-            writer.write("<tr><td>${it.name}</td><td>${it.temperature}</td><td>${it.vlaznost}</td></tr>")
-        }
-        writer.write("""
-                        </tbody>
-                    </table>
-                </body>
-            </html>
-        """.trimIndent())
-    }
-
-    println("Data written to ${outputFile.absolutePath}")
-}*/
-
 import org.json.JSONArray
 import org.json.JSONObject
 import java.awt.Desktop
@@ -219,21 +95,20 @@ fun generateHTMLPage(stations: List<Station>): String {
 fun main() {
     val apiUrl = "https://api.jcdecaux.com/vls/v3/stations?apiKey=frifk0jbxfefqqniqez09tw4jvk37wyf823b5j1i&contract=maribor"
 
-    // Step 1: Fetch data from the API
+
     val jsonData = fetchDataFromAPI(apiUrl)
 
-    // Step 2: Parse JSON data
+
     val stations = parseJSONData(jsonData)
 
-    // Step 3: Generate HTML page
+
     val htmlPage = generateHTMLPage(stations)
     saveStationsToDatabase(stations)
 
-    // Write HTML to a file (optional)
+
     val outputFile = "output.html"
     File(outputFile).writeText(htmlPage)
 
-    // Open the generated HTML page in the default browser
     Desktop.getDesktop().browse(File(outputFile).toURI())
 }
 
